@@ -1,0 +1,7 @@
+*** Settings ***
+Library           Selenium2Library
+Library           SeleniumLibrary
+Library           RequestsLibrary
+Library           collections
+Library           json
+Library           C:/Python27/Lib/site-packages/robotframework-3.0.2-py2.7.egg/robot/libraries/Collections.py

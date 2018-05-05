@@ -1,0 +1,323 @@
+*** Settings ***
+Library           SeleniumLibrary
+Library           RequestsLibrary
+Library           collections
+Library           requests
+Library           json
+Library           C:/Python27/Lib/site-packages/robotframework-3.0.2-py2.7.egg/robot/libraries/Collections.py
+
+*** Variables ***
+${Request_url}    http://qnjxweb.superboss.cc/ajax/execute.do    # 请求地址
+
+*** Test Cases ***
+group_pre_stat
+    [Setup]    Run Keyword    qn_Login
+    log    Get Cookies
+    ${jssionid_value}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssionid_value}
+    Create Session    http://qnjxweb.superboss.cc/ajax/execute.do    cookie=${dict}
+    ${data}    Create Dictionary    command=comparison2    group=pre_stat    page= 1    rows=10    field=payAmount
+    ...    sort=payAmount    order=desc    needCount=true    filterType= kfjx    stat_mode=ww    startDate=2018-03-22
+    ...    endDate=2018-03-22
+    ${result}    requests.Get    http://qnjxweb.superboss.cc/ajax/execute.do    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&stat_mode=ww&startDate=2018-03-24&endDate=2018-03-24'    cookies=${dict}
+    Log    ${result}
+    Log    ${result.text}
+    Log    ${result.content}
+    Log To Console    ${data}['page']
+    Log To Console    ${data['page']}
+    [Teardown]    Close Browser
+
+group_pre_stat1
+    [Setup]    Run Keyword    qn_Login
+    log    Get Cookies
+    ${jssionid_value}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssionid_value}
+    Create Session    http://qnjxweb.superboss.cc/ajax/execute.do    cookie=${dict}
+    Comment    ${data}    Create Dictionary    command=comparison2    group=pre_stat    page= 1    rows=10
+    ...    field=payAmount    sort=payAmount    order=desc    needCount=true    filterType= kfjx    stat_mode=ww
+    ...    startDate=2018-03-22    endDate=2018-03-22
+    ${response}    requests.Get    http://qnjxweb.superboss.cc/ajax/execute.do    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&filteredDateStr=2018-03-20~2018-03-21&stat_mode=ww&startDate=2018-03-20&endDate=2018-03-27'    cookies=${dict}
+    Log    ${response}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict["success"]}    log    Runed successfully
+    [Teardown]    Close Browser
+
+group_pre_filter
+    [Setup]    Run Keyword    qn_Login
+    log    Get Cookies
+    ${jssionid_value}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssionid_value}
+    Comment    Create Session    ${Request_url}    cookie=${dict}
+    Comment    ${data}    Create Dictionary    command=comparison2    group=pre_stat    page= 1    cookies=${dict}
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&stat_mode=ww&startDate=2018-03-24&endDate=2018-03-24'    cookies=${dict}
+    Log    ${response}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict["success"]}    log    Runed successfully
+    [Teardown]    Close Browser
+
+group_pre_emp
+    [Setup]    Run Keyword    qn_Login
+    Get Cookies
+    ${jsession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jsession}
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&stat_mode=emp&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully
+    [Teardown]    Close Browser
+
+group_pre_shopteam
+    [Setup]    Run Keyword    qn_Login    # 登录超级绩效
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&stat_mode=shopTeam&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully
+    [Teardown]    Close Browser
+
+group_pre_group
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=payAmount&sort=payAmount&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfjx&stat_mode=group&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_workload_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=validReceptionPerNum&sort=validReceptionPerNum&order=desc&needCount=true&command=comparison2&group=workload&stat_mode=ww&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_workload_emp
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=validReceptionPerNum&sort=validReceptionPerNum&order=desc&needCount=true&command=comparison2&group=workload&stat_mode=emp&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_workload_shopteam
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=validReceptionPerNum&sort=validReceptionPerNum&order=desc&needCount=true&command=comparison2&group=workload&stat_mode=emp&startDate=2018-03-26&endDate=2018-03-26'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_workload_group
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=validReceptionPerNum&sort=validReceptionPerNum&order=desc&needCount=true&command=comparison2&group=workload&stat_mode=group&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ratio_pre_stat_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=curAskOrderRatio&sort=curAskOrderRatio&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfzh&stat_mode=ww&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ratio_pre_emp
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=curAskOrderRatio&sort=curAskOrderRatio&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfzh&stat_mode=emp&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ratio_pre_shopteam
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=curAskOrderRatio&sort=curAskOrderRatio&order=desc&needCount=true&command=comparison2&group=pre_stat&filterType=kfzh&stat_mode=shopTeam&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_trade_rate_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=rateNum&sort=rateNum&order=desc&needCount=true&command=comparison2&group=trade_rate&stat_mode=ww&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_trade_rate_emp
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=rateNum&sort=rateNum&order=desc&needCount=true&command=comparison2&group=trade_rate&stat_mode=emp&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_trade_rate_shopteam
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=rateNum&sort=rateNum&order=desc&needCount=true&command=comparison2&group=trade_rate&stat_mode=shopTeam&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_trade_rate_group
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=rateNum&sort=rateNum&order=desc&needCount=true&command=comparison2&group=trade_rate&stat_mode=group&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ps_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=afterSalePerNum&sort=afterSalePerNum&order=desc&needCount=true&command=comparison2&group=ps&stat_mode=ww&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ps_emp
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=afterSalePerNum&sort=afterSalePerNum&order=desc&needCount=true&command=comparison2&group=ps&stat_mode=emp&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ps_shopteam
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=afterSalePerNum&sort=afterSalePerNum&order=desc&needCount=true&command=comparison2&group=ps&stat_mode=shopTeam&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+group_ps_group
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=afterSalePerNum&sort=afterSalePerNum&order=desc&needCount=true&command=comparison2&group=ps&stat_mode=group&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_group_shop_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=numId&sort=numId&order=desc&needCount=true&command=good_perf&group=shop_good_perf&stat_mode=ww&numIds=&keyword=&startDate=2018-05-01&endDate=2018-05-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    ${result}    Get From Dictionary    ${response_dict}    success    #校验接口返回值是否为True
+    log    ${result}
+    Should Be Equal As Strings    ${result}    True    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_group_shop_shopID_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=numId&sort=numId&order=desc&needCount=true&command=good_perf&group=shop_good_perf&filteredDateStr=&stat_mode=ww&numIds=566097617176&keyword=&startDate=2018-04-01&endDate=2018-04-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    log    ${response_dict['success']}
+    Comment    Run Keyword If    ${response_dict['success']}    log    Runed Successfully    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_group_shop_keyword_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=numId&sort=numId&order=desc&needCount=true&command=good_perf&group=shop_good_perf&filteredDateStr=&stat_mode=ww&numIds=&keyword=%E7%94%B7%E7%AB%A5&startDate=2018-04-01&endDate=2018-04-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    ${result}    Get From Dictionary    ${response_dict}    success
+    log    ${result}
+    Should Be Equal As Strings    ${result}    True    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_shop_consult_ww
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=consultNum&sort=consultNum&order=desc&needCount=true&command=good_perf&group=shop_good_consult&filteredDateStr=&numIds=&keyword=&startDate=2018-04-01&endDate=2018-04-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    ${result}    Get From Dictionary    ${response_dict}    success
+    log    ${result}
+    Should Be Equal As Strings    ${result}    True    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_shop_recommend
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=recommendNum&sort=recommendNum&order=desc&needCount=true&command=good_perf&group=shop_good_recommend&numIds=&keyword=&startDate=2018-04-01&endDate=2018-04-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    ${result}    Get From Dictionary    ${response_dict}    success
+    log    ${result}
+    Should Be Equal As Strings    ${result}    True    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+good_perf_shop_recommend_numIds
+    [Setup]    Run Keyword    qn_Login
+    ${jssession}    Get Cookie Value    JSESSIONID
+    ${dict}    Create Dictionary    JSESSIONID=${jssession}    #JSESSIONID转化为字典型
+    sleep    2
+    ${response}    requests.Get    ${Request_url}    params='page=1&rows=10&field=recommendNum&sort=recommendNum&order=desc&needCount=true&command=good_perf&group=shop_good_recommend&numIds=565472276800&keyword=&startDate=2018-04-01&endDate=2018-04-01'    cookies=${dict}
+    log    ${response.content}
+    ${response_dict}    json.Loads    ${response.content}
+    ${result}    Get From Dictionary    ${response_dict}    success
+    log    ${result}
+    Should Be Equal As Strings    ${result}    True    #校验接口返回值是否为True
+    [Teardown]    Close Browser
+
+*** Keywords ***
+qn_Login
+    [Arguments]    ${Url}=http://qnjxweb.superboss.cc/LoginIndex.jsp    ${User}=迷你猫母婴旗舰店
+    Open Browser    ${Url}    chrome
+    Maximize Browser Window
+    Set Selenium Implicit Wait    10
+    input text    //*[@ng-model="username"]    ${User}
+    Input Password    //*[@ng-model="password"]    admin
+    Click Button    //*[@value="SUBMIT"]
